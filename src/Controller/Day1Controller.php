@@ -25,13 +25,10 @@ class Day1Controller extends AbstractController
     {
         $numbers = $numbersInv = $this->inputReader->getInput('day1.txt');
 
-        sort($numbers);
-        rsort($numbersInv);
         foreach ($numbers as $number) {
-            foreach ($numbersInv as $invNumber) {
-                if ($number + $invNumber === 2020) {
-                    echo $number * $invNumber; die();
-                }
+            $sub = 2020 - (int)$number;
+            if (\in_array($sub, $numbers)) {
+                echo $sub * $number; die();
             }
         }
     }
