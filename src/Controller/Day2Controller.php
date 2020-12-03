@@ -43,6 +43,15 @@ class Day2Controller extends AbstractController
                 $numberMatches++;
             }
 
+
+           /*
+            // ANOTHER WAY TO DO IT (MUCH EASIER THAN THE REGEX -_-)
+            $countLetter = substr_count($password, $letter);
+
+            if ($arrNumberTime[0] <= $countLetter && $countLetter <= $arrNumberTime[1] ) {
+                $numberMatches++;
+            }
+           */
         }
         echo $numberMatches;
         die();
