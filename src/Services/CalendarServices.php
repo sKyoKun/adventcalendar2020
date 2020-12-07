@@ -139,7 +139,7 @@ class CalendarServices
 
         $myRow = $this->calculateRowAndPlace($rows, 0, 127, 'F', 'B');
         $mySeat = $this->calculateRowAndPlace($seats, 0, 7, 'L', 'R');
-        
+
         $seatId = ($myRow * 8) + $mySeat;
 
         return $seatId;

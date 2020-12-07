@@ -39,7 +39,6 @@ class Day5Controller extends AbstractController
         $highestPlace = array_pop($places);
 
         dump($highestPlace);
-
         die();
     }
 
@@ -48,7 +47,6 @@ class Day5Controller extends AbstractController
      */
     public function day5Part2()
     {
-        $validPassports = 0;
         $places = [];
         $inputs = $this->inputReader->getInput('day5.txt');
 
@@ -56,8 +54,13 @@ class Day5Controller extends AbstractController
             $places[] = $this->calendarServices->parsePlace($input);
         }
         sort($places);
-        $highestPlace = array_pop($places);
-        die();
+
+        foreach ($places as $place) {
+            if(false === in_array($place+1, $places))
+            {
+                dump($place+1);die();
+            }
+        }
     }
 
 
