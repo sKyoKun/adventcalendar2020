@@ -213,6 +213,78 @@ class CalendarServices
         return count($commonAnswers);
     }
 
+    // DAY 7
+    public function getBagsForColor(string $color, array $inputs, &$alreadyFoundColors)
+    {
+        foreach ($inputs as $input) {
+            $contained = strstr($input, 'contain');
+            if (strstr($contained, $color)) {
+                $currentColor = strstr($input, ' bags', true);
+                $alreadyFoundColors[] = $currentColor;
+                $this->getBagsForColor($currentColor, $inputs, $alreadyFoundColors);
+            }
+
+            continue;
+        }
+    }
+
+    /**
+     * Retrieve all colors needed for shiny gold
+     * ["color" => number bags]
+     * @param string $color
+     * @param array $inputs
+     * @param $colorsRules
+     */
+    public function getBagRulesForColor(string $color, array $inputs, &$colorsRules)
+    {
+        foreach ($inputs as $input) {
+            $currentColor = strstr($input, ' bags', true);
+            if ($color === $currentColor) {
+                $containedString = substr($input,strpos($input, 'contain ')+8);
+                $containedColors = explode(', ', $containedString);
+                foreach ($containedColors as $containedColor) {
+                    $currentColorAndNumber = strstr($containedColor, ' bag', true);
+                    if($currentColorAndNumber !== "no other") {
+                        $number = $currentColorAndNumber[0];
+                        $color = substr($currentColorAndNumber, 2);
+                        $colorsRules[$currentColor][$color] = $number;
+                        $this->getBagRulesForColor($color, $inputs, $colorsRules);
+                    }
+                    else {
+                        $colorsRules[$currentColor] = "no other";
+                    }
+                }
+            }
+
+            continue;
+        }
+    }
+
+    /**
+     * From the colors found with above function, get the total bag count
+     * If a bag color is processed, we should add 1 for the bag itself and number * color
+     * @param string $color
+     * @param array $colorsRules
+     *
+     * @return float|int
+     */
+    public function getBagCountFromRulesForColor(string $color, array $colorsRules) {
+        $total = 0;
+        foreach ($colorsRules as $key => $rules) {
+            if ($key === $color) {
+                $total+= 1; // every time I pass a bag color i should count the bag
+                if ($rules == "no other") {
+                    return 1;
+                } else {
+                    foreach($rules as $currentColor => $number) {
+                        $total += $number * $this->getBagCountFromRulesForColor($currentColor, $colorsRules);
+                    }
+                    return $total;
+                }
+            }
+        }
+    }
+
     private function calculateRowAndPlace($rows, $minRange, $maxRange, $lowerHalf, $upperHalf) {
         $currentMaxRange = $maxRange;
         $currentMinRange = $minRange;
