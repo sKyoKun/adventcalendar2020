@@ -78,20 +78,59 @@ class CalendarServices
         return false;
     }
 
-    public function isPasswordValidWithRestrain(array $passport){
+    public function isPasswordValidWithRestrain(array $passport): bool{
         if (false === $this->isPassportValid($passport)) {
             return false;
         }
 
-        if ((int)$passport['byr'] < 1920 && (int)$passport['byr'] > 2002) {
+        if ((int)$passport['byr'] < 1920 || (int)$passport['byr'] > 2002) {
             return false;
         }
-        if ((int)$passport['iyr'] < 2010 && (int)$passport['byr'] > 2020) {
+        if ((int)$passport['iyr'] < 2010 || (int)$passport['iyr'] > 2020) {
             return false;
         }
-        if ((int)$passport['eyr'] < 2020 && (int)$passport['eyr'] > 2030) {
+        if ((int)$passport['eyr'] < 2020 || (int)$passport['eyr'] > 2030) {
             return false;
         }
+        $heightCm = strstr($passport['hgt'], 'cm', true);
+        $heightIn = strstr($passport['hgt'], 'in', true);
+        if (!$heightCm && !$heightIn) {
+            return false;
+        }
+
+        if ($heightCm && ((int)$heightCm < 150 || (int)$heightCm > 193)) {
+            return false;
+        }
+
+        if ($heightIn && ((int)$heightIn < 59 || (int)$heightIn > 76)) {
+            return false;
+        }
+
+        if (false === strpos($passport['hcl'], '#')) {
+            return false;
+        }
+
+        if (strlen($passport['hcl']) !== 7) {
+            return false;
+        }
+
+        if (false === ctype_xdigit(ltrim($passport['hcl'], '#'))) {
+            return false;
+        }
+
+        if (false === \in_array($passport['ecl'], ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'])) {
+            return false;
+        }
+
+        if(strlen($passport['pid']) !== 9) {
+            return false;
+        }
+
+        if(false === is_numeric($passport['pid'])) {
+            return false;
+        }
+
+        return true;
     }
 
     private function parsePassportLine(string $line) {

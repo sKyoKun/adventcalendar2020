@@ -33,7 +33,7 @@ class Day4Controller extends AbstractController
         $inputs = $this->inputReader->getInput('day4.txt');
         $passports = $this->calendarServices->parseInputsPassports($inputs);
         foreach ($passports as $passport) {
-            if ($this->calendarServices->isPassportValid($passport)) {
+            if ($this->calendarServices->isPasswordValidWithRestrain($passport)) {
                 $validPassports++;
             }
         }
@@ -51,7 +51,7 @@ class Day4Controller extends AbstractController
         $inputs = $this->inputReader->getInput('day4.txt');
         $passports = $this->calendarServices->parseInputsPassports($inputs);
         foreach ($passports as $passport) {
-            if ($this->calendarServices->isPassportValidWithRestrain($passport)) {
+            if ($this->calendarServices->isPasswordValidWithRestrain($passport)) {
                 $validPassports++;
             }
         }
