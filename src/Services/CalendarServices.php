@@ -52,6 +52,8 @@ class CalendarServices
         return $passports;
     }
 
+    // DAY 4
+
     public function isPassportValid(array $passport)
     {
         $validKeys = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid', 'cid'];
@@ -133,6 +135,8 @@ class CalendarServices
         return true;
     }
 
+    // DAY 5
+
     public function parsePlace(string $code) {
         $rows = substr($code, 0, 7);
         $seats = substr($code, -3);
@@ -143,6 +147,70 @@ class CalendarServices
         $seatId = ($myRow * 8) + $mySeat;
 
         return $seatId;
+    }
+
+    // DAY 6
+    public function parseInputsDeclarationForms(array $inputs)
+    {
+        $answersPerGroup = [];
+        $lastBlankLineValue = 0;
+        foreach ($inputs as $lineNumber => $input) {
+            $previousAnswer = '';
+            if($input == '') {
+                for($i = $lastBlankLineValue; $i < $lineNumber; $i++) {
+                    $previousAnswer .= $inputs[$i];
+                }
+                $answersPerGroup[] = $previousAnswer;
+                $lastBlankLineValue = $lineNumber+1;
+            }
+        }
+
+        // get the last passport as we can't go in the if = ""
+        $lastAnswer = '';
+        for($i = $lastBlankLineValue; $i < count($inputs); $i++) {
+            $lastAnswer .= $inputs[$i];
+        }
+        $answersPerGroup[] = $lastAnswer;
+
+        return $answersPerGroup;
+    }
+
+    public function parseInputsDeclarationFormsToArrays(array $inputs)
+    {
+        $answersPerGroup = [];
+        $lastBlankLineValue = 0;
+        foreach ($inputs as $lineNumber => $input) {
+            $previousAnswer = [];
+            if($input == '') {
+                for($i = $lastBlankLineValue; $i < $lineNumber; $i++) {
+                    $previousAnswer[] = mb_str_split($inputs[$i]);
+                }
+                $answersPerGroup[] = $previousAnswer;
+                $lastBlankLineValue = $lineNumber+1;
+            }
+        }
+
+        // get the last passport as we can't go in the if = ""
+        $lastAnswer = [];
+        for($i = $lastBlankLineValue; $i < count($inputs); $i++) {
+            $lastAnswer[] = mb_str_split($inputs[$i]);
+        }
+        $answersPerGroup[] = $lastAnswer;
+
+        return $answersPerGroup;
+    }
+
+    public function countDifferentAnswers(string $answers): int {
+        $answersArray = mb_str_split($answers);
+        $uniqueAnswers = array_unique($answersArray);
+
+        return count($uniqueAnswers);
+    }
+
+    public function countQuestionAnsweredByEveryone(array $peopleDeclaration): int {
+        $commonAnswers = array_intersect($peopleDeclaration[0], ...$peopleDeclaration);
+
+        return count($commonAnswers);
     }
 
     private function calculateRowAndPlace($rows, $minRange, $maxRange, $lowerHalf, $upperHalf) {
