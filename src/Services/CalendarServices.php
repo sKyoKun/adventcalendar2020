@@ -133,6 +133,40 @@ class CalendarServices
         return true;
     }
 
+    public function parsePlace(string $code) {
+        $rows = substr($code, 0, 7);
+        $seats = substr($code, -3);
+
+        $myRow = $this->calculateRowAndPlace($rows, 0, 127, 'F', 'B');
+        $mySeat = $this->calculateRowAndPlace($seats, 0, 7, 'L', 'R');
+        
+        $seatId = ($myRow * 8) + $mySeat;
+
+        return $seatId;
+    }
+
+    private function calculateRowAndPlace($rows, $minRange, $maxRange, $lowerHalf, $upperHalf) {
+        $currentMaxRange = $maxRange;
+        $currentMinRange = $minRange;
+        $rowDirection ='';
+        while (strlen($rows) > 0)
+        {
+            $rowDirection = $rows[0];
+
+            if ($rowDirection == $lowerHalf) {
+                $currentMaxRange = $currentMaxRange - (int)ceil(($currentMaxRange - $currentMinRange) / 2);
+            } else if ($rowDirection == $upperHalf) {
+                $currentMinRange = $currentMinRange + (int)ceil(($currentMaxRange - $currentMinRange) / 2);
+            }
+            $rows = substr($rows, 1);
+        }
+
+        if ($rowDirection === $lowerHalf) {
+            return $currentMinRange;
+        }
+        return $currentMaxRange;
+    }
+
     private function parsePassportLine(string $line) {
         $previousPassportContent = explode(' ', $line);
         foreach ($previousPassportContent as $keyValuePairs) {
