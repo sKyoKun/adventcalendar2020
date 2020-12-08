@@ -56,65 +56,72 @@ class Day8Controller extends AbstractController
         die();
     }
 
-    private function processingArray($inputs, &$currentIndex, &$accumulator, &$lastJump, &$lastNop, &$iteration) {
-        $passedInputs[] = $currentIndex;
-        $instructionAndParam = explode(' ', $inputs[$currentIndex]);
-        switch ($instructionAndParam[0]) {
-            case "acc":
-                $accumulator += $instructionAndParam[1];
-                $currentIndex += 1;
-                break;
-            case "jmp":
-                if($iteration == 1) { $lastJump = $currentIndex; }
-                $currentIndex += $instructionAndParam[1];
-                break;
-            case "nop":
-                if($iteration == 1) { $lastNop = $currentIndex; }
-                $currentIndex += 1;
-                break;
-        }
-        $iteration++;
-    }
-
     /**
     + @Route("/2")
      */
     public function day8Part2()
     {
-        $inputs = $this->inputReader->getInput('day8.txt');
+        $inputs = $originalInputs = $this->inputReader->getInput('day8.txt');
 
         $accumulator = 0;
-        $passedInputs = [];
+        $executed = [];
         $currentIndex = 0;
-        $lastJump = 0;
-        $lastNop = 0;
-        $iteration = 1;
-        $usedJump = false;
+        $hasChangedInput = false;
+        $changedInputs = [];
 
 
         while($currentIndex < count($inputs)) {
-            if (in_array($currentIndex, $passedInputs)) {
-                dump("doublon");
-                $passedInputs = [];
+            // if we find an index again, we looped, so we reset all the counters and $executed / $inputs arrays
+            if (in_array($currentIndex, $executed)) {
+                $accumulator = 0;
+                $executed = [];
                 $currentIndex = 0;
-                if(!$usedJump) {
-                    $usedJump = true;
-                    $oldValue = explode(' ', $inputs[$lastJump]);
-                    $inputs[$lastJump] = "nop ".$oldValue[1];
-                } else {
-                    $oldValue = explode(' ', $inputs[$lastNop]);
-                    $inputs[$lastNop] = "jmp ".$oldValue[1];
-                }
+                $inputs = $originalInputs;
+                $hasChangedInput = false;
 
             }
-            $this->processingArray($inputs, $currentIndex, $accumulator, $lastJump, $lastNop, $iteration);
-            if ($currentIndex === count($inputs)) {
-                dump($accumulator);
+            // Lets get the current instruction
+            $executed[] = $currentIndex;
+            $instructionAndParam = explode(' ', $inputs[$currentIndex]);
+            $instruction = $instructionAndParam[0];
+            $number = $instructionAndParam[1];
+            // If our instruction is a jmp or a nop, then we look if we already changed it and if we already changed one in this try
+            if("acc" !== $instruction && false === in_array($currentIndex, $changedInputs) && false === $hasChangedInput) {
+                // if it's a jump, we convert it as a nop and update our array, we put our current index in changedInputs Array
+                // Same goes for a nop (converted to jmp)
+                if($instruction === "jmp") {
+                    $instruction = "nop";
+                } else if($instruction === "nop") {
+                    $instruction = "jmp";
+                }
+                $changedInputs[] = $currentIndex ;
+                $inputs[$currentIndex] = $instruction.' '.$number;
+                $hasChangedInput = true;
             }
+            // then we process the instruction
+            $this->processInstruction($instruction, $number, $currentIndex, $accumulator);
+
         }
-        //dump($accumulator);
+        dump($accumulator);
 
         die();
+    }
+
+
+    private function processInstruction($instruction, $number, &$currentIndex, &$accumulator) {
+
+        switch ($instruction) {
+            case "acc":
+                $accumulator += $number;
+                $currentIndex += 1;
+                break;
+            case "jmp":
+                $currentIndex += $number;
+                break;
+            case "nop":
+                $currentIndex += 1;
+                break;
+        }
     }
 
 }
