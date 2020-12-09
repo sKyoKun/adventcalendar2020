@@ -59,6 +59,37 @@ class Day9Controller extends AbstractController
      */
     public function day9Part2()
     {
+        $inputs = $this->inputReader->getInput('day9.txt');
+
+        $numberToFind = 23278925;
+        $numberToFindKey = array_search($numberToFind, $inputs);
+
+        // We only get a subset of the original array 0 => key for selected value
+        $subInputs = array_slice($inputs, 0, $numberToFindKey+1);
+
+        // we go from our value, to the start of the array
+        for ($i=($numberToFindKey-1); $i >=0; $i--) {
+            $sum = 0;
+            $counter = 0;
+            while ($sum < $numberToFind) {
+                $sum += $subInputs[$i-$counter];
+                $counter++;
+            }
+
+            if($sum === $numberToFind) {
+                // we found our subset of numbers, lets isolate these in a new array
+                $finalArray=array_splice($subInputs,$i-$counter+1, $counter);
+                // then we sort it to get the min and max value
+                sort($finalArray);
+                $min=array_shift($finalArray);
+                $max=array_pop($finalArray);
+
+
+                dump($min + $max);
+                die();
+            }
+            continue;
+        }
     }
 
 }
