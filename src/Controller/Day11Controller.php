@@ -29,7 +29,7 @@ class Day11Controller extends AbstractController
      */
     public function day11()
     {
-        $inputs = $this->inputReader->getInput('day11test.txt');
+        $inputs = $this->inputReader->getInput('day11.txt');
         $grid = [];
 
         $row = 0;
@@ -38,6 +38,7 @@ class Day11Controller extends AbstractController
             $row++;
         }
 
+        $tempGrid = $grid; // we need to change the grid only after looking at all the values
         $occupiedSeats = 0;
         do {
             $hasChanged = false;
@@ -46,19 +47,22 @@ class Day11Controller extends AbstractController
                     if ($value === '.') {
                         continue;
                     }
-                    if ($value === 'L' && $this->countOccupiedSeats($rowNumber, $column, $grid) === 0) {
-                        $grid[$rowNumber][$column] = "#";
+                    $adjacentOccupiedSeats = $this->countOccupiedSeats($rowNumber, $column, $grid);
+                    if ($value === 'L' && $adjacentOccupiedSeats === 0) {
+                        $tempGrid[$rowNumber][$column] = "#";
                         $hasChanged = true;
                         $occupiedSeats++;
-                    } else if ($value === '#' && $this->countOccupiedSeats($rowNumber, $column, $grid) >= 4) {
-                        $grid[$rowNumber][$column] = "L";
+                    } else if ($value === '#' && $adjacentOccupiedSeats >= 4) {
+                        $tempGrid[$rowNumber][$column] = "L";
                         $hasChanged = true;
                         $occupiedSeats--;
                     }
                 }
             }
+            $grid = $tempGrid;
         } while ($hasChanged === true);
 
+        dump($grid);
         dump($occupiedSeats);
         die();
 
@@ -68,7 +72,8 @@ class Day11Controller extends AbstractController
         $occupiedSeats = 0;
         for($x = $currentSeatX - 1; $x <= $currentSeatX + 1; $x++) {
             for($y = $currentSeatY - 1; $y <= $currentSeatY + 1; $y++) {
-                if (isset($grid[$x][$y]) && $grid[$x][$y] == '#') {
+                // if the seat exists in our grid and it's occupied, and it's not OUR seat ...
+                if (isset($grid[$x][$y]) && $grid[$x][$y] == '#' && ($x.'-'.$y !== $currentSeatX.'-'.$currentSeatY)) {
                     $occupiedSeats++;
                 }
             }
