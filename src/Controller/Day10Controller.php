@@ -86,7 +86,7 @@ class Day10Controller extends AbstractController
                 }
             }
         }
-        
+
         return new JsonResponse(array_pop($ways), Response::HTTP_OK);
     }
 

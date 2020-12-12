@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Services\CalendarServices;
 use App\Services\InputReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -25,13 +27,14 @@ class Day9Controller extends AbstractController
     }
 
     /**
-    + @Route("/")
+     * @Route("/1/{file}/{preambleLength}", defaults={"file"="day9", "preambleLength"=25})
+     * @param $file
+     * @param $preambleLength
+     * @return JsonResponse
      */
-    public function day9()
+    public function day9(string $file, int $preambleLength)
     {
-        //$inputs = $this->inputReader->getInput('day9test.txt');
-        $inputs = $this->inputReader->getInput('day9.txt');
-        $preambleLength = 25;
+        $inputs = $this->inputReader->getInput($file.'.txt');
         $index = $preambleLength;
 
         while ($index < count($inputs)) {
@@ -45,23 +48,24 @@ class Day9Controller extends AbstractController
                 }
             }
             if (false === $found) {
-                dump($inputs[$index]);
-                die();
+                return new JsonResponse($inputs[$index], Response::HTTP_OK);
             }
             ++$index;
         }
 
-        die();
+        return new JsonResponse(null, Response::HTTP_NOT_ACCEPTABLE);
     }
 
     /**
-    + @Route("/2")
+     * @Route("/2/{file}/{numberToFind}", defaults={"file"="day9", "numberToFind"=23278925})
+     * @param $file
+     * @param $numberToFind
+     * @return JsonResponse
      */
-    public function day9Part2()
+    public function day9Part2(string $file, int $numberToFind)
     {
-        $inputs = $this->inputReader->getInput('day9.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
 
-        $numberToFind = 23278925;
         $numberToFindKey = array_search($numberToFind, $inputs);
 
         // We only get a subset of the original array 0 => key for selected value
@@ -84,12 +88,12 @@ class Day9Controller extends AbstractController
                 $min=array_shift($finalArray);
                 $max=array_pop($finalArray);
 
-
-                dump($min + $max);
-                die();
+                return new JsonResponse($min + $max, Response::HTTP_OK);
             }
             continue;
         }
+
+        return new JsonResponse(null, Response::HTTP_NOT_ACCEPTABLE);
     }
 
 }
