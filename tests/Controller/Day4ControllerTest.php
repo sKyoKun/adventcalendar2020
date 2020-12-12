@@ -16,7 +16,7 @@ class Day4ControllerTest extends WebTestCase
         $this->assertEquals(2, $content);
     }
 
-    public function testDay4Part2Invalid()
+    public function testDay4Part2WithOnlyInvalidPassports()
     {
         $client = $this->makeClient();
         $client->request('GET', '/day4/2/day4part2invalid');
@@ -25,7 +25,7 @@ class Day4ControllerTest extends WebTestCase
         $this->assertEquals(0, $content);
     }
 
-    public function testDay4Part2Valid()
+    public function testDay4Part2WithOnlyValidPassports()
     {
         $client = $this->makeClient();
         $client->request('GET', '/day4/2/day4part2valid');

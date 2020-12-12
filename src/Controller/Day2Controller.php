@@ -5,6 +5,8 @@ namespace App\Controller;
 
 use App\Services\InputReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -14,17 +16,21 @@ class Day2Controller extends AbstractController
 {
     private $inputReader;
 
+    /**
+     * @param InputReader $inputReader
+     */
     public function __construct(InputReader $inputReader)
     {
         $this->inputReader = $inputReader;
     }
 
     /**
-    + @Route("/")
+     * @Route("/1/{file}", defaults={"file"="day2"})
+     * @param string $file
      */
-    public function day2()
+    public function day2(string $file)
     {
-        $passwordsAndRules = $this->inputReader->getInput('day2.txt');
+        $passwordsAndRules = $this->inputReader->getInput($file.'.txt');
 
         $numberMatches = 0;
         foreach ($passwordsAndRules as $passwordAndRule) {
@@ -39,7 +45,6 @@ class Day2Controller extends AbstractController
             $regex = '/^([^'.$letter.']*'.$letter.'){'.$arrNumberTime[0].','.$arrNumberTime[1].'}[^'.$letter.']*$/';
 
             if (1 === preg_match ( $regex , $password)) {
-                echo $password.' matches '.$regex. '<br/>';
                 $numberMatches++;
             }
 
@@ -53,16 +58,18 @@ class Day2Controller extends AbstractController
             }
            */
         }
-        echo $numberMatches;
-        die();
+
+        return new JsonResponse($numberMatches, Response::HTTP_OK);
     }
 
     /**
-    + @Route("/2")
+     * @Route("/2/{file}", defaults={"file"="day2"})
+     * @param string $file
+     * @return JsonResponse
      */
-    public function day2Bis()
+    public function day2Bis(string $file): JsonResponse
     {
-        $passwordsAndRules = $this->inputReader->getInput('day2.txt');
+        $passwordsAndRules = $this->inputReader->getInput($file.'.txt');
 
         $numberMatches = 0;
         foreach ($passwordsAndRules as $passwordAndRule) {
@@ -82,7 +89,7 @@ class Day2Controller extends AbstractController
                 $numberMatches++;
             }
         }
-        echo $numberMatches;
-        die();
+
+        return new JsonResponse($numberMatches, Response::HTTP_OK);
     }
 }
