@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Services\CalendarServices;
 use App\Services\InputReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -25,11 +27,11 @@ class Day10Controller extends AbstractController
     }
 
     /**
-    + @Route("/")
+     * @Route("/1/{file}", defaults={"file"="day10"})
      */
-    public function day10()
+    public function day10($file)
     {
-        $inputs = $this->inputReader->getInput('day10.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
         sort($inputs);
         $builtInJoltageAdapter = max($inputs) + 3;
         $currentJoltage = 0;
@@ -46,19 +48,15 @@ class Day10Controller extends AbstractController
             $differentJolts[$difference] += 1;
         }
 
-        dump($differentJolts[1]);
-        dump($differentJolts[3]);
-        dump($differentJolts[1] * $differentJolts[3]);
-
-        die();
+        return new JsonResponse(($differentJolts[1] * $differentJolts[3]), Response::HTTP_OK);
     }
 
     /**
-    + @Route("/2")
+     * @Route("/2/{file}", defaults={"file"="day10"})
      */
-    public function day10Part2()
+    public function day10Part2($file)
     {
-        $inputs = $this->inputReader->getInput('day10.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
         sort($inputs);
         array_unshift($inputs, 0);
 
@@ -88,9 +86,8 @@ class Day10Controller extends AbstractController
                 }
             }
         }
-
-        dump(array_pop($ways));
-        die();
+        
+        return new JsonResponse(array_pop($ways), Response::HTTP_OK);
     }
 
 }

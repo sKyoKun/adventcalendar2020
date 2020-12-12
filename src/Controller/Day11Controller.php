@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Services\CalendarServices;
 use App\Services\InputReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -25,11 +27,11 @@ class Day11Controller extends AbstractController
     }
 
     /**
-    + @Route("/")
+     * @Route("/1/{file}", defaults={"file"="day11"})
      */
-    public function day11()
+    public function day11($file)
     {
-        $inputs = $this->inputReader->getInput('day11.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
         $grid = [];
 
         $row = 0;
@@ -66,10 +68,7 @@ class Day11Controller extends AbstractController
             $grid = $tempGrid;
         } while ($hasChanged === true);
 
-        dump($grid);
-        dump($occupiedSeats);
-        die();
-
+        return new JsonResponse($occupiedSeats, Response::HTTP_OK);
     }
 
     /**
@@ -95,11 +94,11 @@ class Day11Controller extends AbstractController
     }
 
     /**
-    + @Route("/2")
+     * @Route("/2/{file}", defaults={"file"="day11"})
      */
-    public function day11Part2()
+    public function day11part2($file)
     {
-        $inputs = $this->inputReader->getInput('day11.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
         $grid = [];
 
         $row = 0;
@@ -141,8 +140,7 @@ class Day11Controller extends AbstractController
             $grid = $tempGrid;
         } while ($hasChanged === true);
 
-        dump($occupiedSeats);
-        die();
+        return new JsonResponse($occupiedSeats, Response::HTTP_OK);
     }
 
     private function hasUpleftOccupiedSeat($currentSeatX, $currentSeatY, $grid) {
