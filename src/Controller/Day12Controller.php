@@ -66,7 +66,14 @@ class Day12Controller extends AbstractController
 
     }
 
-    private function getNewDirection($currentDirection, $degrees) {
+    /**
+     * Calculate the new direction from old one and rotation
+     * @param $currentDirection
+     * @param $degrees
+     * @return string
+     */
+    private function getNewDirection($currentDirection, $degrees): string
+    {
 
         $directions['E'] = [90 => 'S', 180 => 'W', 270 => 'N', 360 => 'E'];
         $directions['S'] = [90 => 'W', 180 => 'N', 270 => 'E', 360 => 'S'];
@@ -76,7 +83,13 @@ class Day12Controller extends AbstractController
         return $directions[$currentDirection][$degrees];
     }
 
-    private function convertInvertDegrees($invertDegrees) {
+    /**
+     * Convert counter clock wise degrees into normal ones
+     * @param $invertDegrees
+     * @return int
+     */
+    private function convertInvertDegrees($invertDegrees): int
+    {
         switch($invertDegrees) {
             case 90:
                 return 270;
@@ -89,7 +102,15 @@ class Day12Controller extends AbstractController
         }
     }
 
-    private function moveInDirection($direction, $number, &$countDirection) {
+    /**
+     * Move the ship/waypoint into direction.
+     * Arbitrary values : North and East are positives, South and West negatives.
+     * @param $direction
+     * @param $number
+     * @param $countDirection
+     */
+    private function moveInDirection($direction, $number, &$countDirection)
+    {
         switch ($direction) {
             case 'E':
                 $countDirection['EASTWEST'] += $number;
@@ -114,6 +135,81 @@ class Day12Controller extends AbstractController
     {
         $inputs = $this->inputReader->getInput('day12.txt');
 
+        // configure the starting points
+        $waypoint = [
+            'EASTWEST'   => 10,
+            'NORTHSOUTH' => 1
+        ];
+
+        $ship = [
+            'EASTWEST'   => 0,
+            'NORTHSOUTH' => 0
+        ];
+
+        foreach ($inputs as $string) {
+            $command = $string[0];
+            $number  = (int)substr($string, 1);
+
+            switch ($command) {
+                case 'N':
+                case 'S':
+                case 'E':
+                case 'W':
+                    $this->moveInDirection($command, $number, $waypoint);
+                    break;
+                case 'F':
+                    $this->moveShipToWaypoint($number, $ship, $waypoint);
+                    break;
+                case 'L':
+                    $newDegrees = $this->convertInvertDegrees($number);
+                    $waypoint  = $this->getNewWaypoint($waypoint, $newDegrees);
+                    break;
+                case 'R':
+                    $waypoint  = $this->getNewWaypoint($waypoint, $number);
+                    break;
+
+            }
+        }
+
+        dump(abs($ship['EASTWEST']) + abs($ship['NORTHSOUTH']));
+
         die();
+    }
+
+    /**
+     * The ship starts from his point to the waypoint
+     * @param $numberTimes
+     * @param $ship
+     * @param $waypoint
+     */
+    private function moveShipToWaypoint($numberTimes, &$ship, $waypoint)
+    {
+        $ship['EASTWEST'] = $ship['EASTWEST'] + ($waypoint['EASTWEST'] * $numberTimes);
+        $ship['NORTHSOUTH'] = $ship['NORTHSOUTH'] + ($waypoint['NORTHSOUTH'] * $numberTimes);
+    }
+
+    /**
+     * Calculates new waypoint coordinates
+     * @param $waypoint
+     * @param $degrees
+     * @return array
+     */
+    private function getNewWaypoint($waypoint, $degrees): array
+    {
+        $oldPos = $waypoint;
+        switch ($degrees) {
+            case 90:
+                $waypoint['EASTWEST'] = $oldPos['NORTHSOUTH'];
+                $waypoint['NORTHSOUTH'] = - $oldPos['EASTWEST'];
+                return $waypoint;
+            case 180:
+                $waypoint['EASTWEST'] = - $oldPos['EASTWEST'];
+                $waypoint['NORTHSOUTH'] = - $oldPos['NORTHSOUTH'];
+                return $waypoint;
+            case 270:
+                $waypoint['EASTWEST'] = - $oldPos['NORTHSOUTH'];
+                $waypoint['NORTHSOUTH'] =  $oldPos['EASTWEST'];
+                return $waypoint;
+        }
     }
 }
