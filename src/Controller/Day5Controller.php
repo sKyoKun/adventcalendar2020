@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Services\CalendarServices;
 use App\Services\InputReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -18,6 +20,10 @@ class Day5Controller extends AbstractController
     /** @var InputReader */
     private $inputReader;
 
+    /**
+     * @param CalendarServices $calendarServices
+     * @param InputReader $inputReader
+     */
     public function __construct(CalendarServices $calendarServices, InputReader $inputReader)
     {
         $this->calendarServices = $calendarServices;
@@ -25,12 +31,14 @@ class Day5Controller extends AbstractController
     }
 
     /**
-    + @Route("/")
+     * @Route("/1/{file}", defaults={"file"="day5"})
+     * @param string $file
+     * @return JsonResponse
      */
-    public function day5()
+    public function day5(string $file): JsonResponse
     {
         $places = [];
-        $inputs = $this->inputReader->getInput('day5.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
 
         foreach ($inputs as $input) {
             $places[] = $this->calendarServices->parsePlace($input);
@@ -38,17 +46,18 @@ class Day5Controller extends AbstractController
         sort($places);
         $highestPlace = array_pop($places);
 
-        dump($highestPlace);
-        die();
+        return new JsonResponse($highestPlace, Response::HTTP_OK);
     }
 
     /**
-    + @Route("/2")
+     * @Route("/2/{file}", defaults={"file"="day5"})
+     * @param string $file
+     * @return JsonResponse
      */
-    public function day5Part2()
+    public function day5Part2(string $file)
     {
         $places = [];
-        $inputs = $this->inputReader->getInput('day5.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
 
         foreach ($inputs as $input) {
             $places[] = $this->calendarServices->parsePlace($input);
@@ -58,7 +67,7 @@ class Day5Controller extends AbstractController
         foreach ($places as $place) {
             if(false === in_array($place+1, $places))
             {
-                dump($place+1);die();
+                return new JsonResponse($place+1, Response::HTTP_OK);
             }
         }
     }
