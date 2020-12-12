@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Services\CalendarServices;
 use App\Services\InputReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -25,34 +27,34 @@ class Day7Controller extends AbstractController
     }
 
     /**
-    + @Route("/")
+     * @Route("/1/{file}", defaults={"file"="day7"})
+     * @param string $file
+     * @return JsonResponse
      */
-    public function day7()
+    public function day7(string $file): JsonResponse
     {
-        $inputs = $this->inputReader->getInput('day7.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
 
         $bagColors = [];
         $this->calendarServices->getBagsForColor('shiny gold', $inputs, $bagColors);
 
-        dump(count(array_unique($bagColors)));
-        die();
+        return new JsonResponse(count(array_unique($bagColors)), Response::HTTP_OK);
     }
 
     /**
-    + @Route("/2")
+     * @Route("/2/{file}", defaults={"file"="day7"})
+     * @param string $file
+     * @return JsonResponse
      */
-    public function day7Part2()
+    public function day7Part2(string $file): JsonResponse
     {
-        $inputs = $this->inputReader->getInput('day7.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
 
         $colorsRules = [];
         $this->calendarServices->getBagRulesForColor('shiny gold', $inputs, $colorsRules);
         $bagCount = $this->calendarServices->getBagCountFromRulesForColor('shiny gold', $colorsRules);
 
-
-        dump($colorsRules);
-        dump($bagCount-1); // we dont want to count the first gold bag
-        die();
+        return new JsonResponse($bagCount-1, Response::HTTP_OK);
     }
 
 

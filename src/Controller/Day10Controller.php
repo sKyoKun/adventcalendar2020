@@ -28,8 +28,10 @@ class Day10Controller extends AbstractController
 
     /**
      * @Route("/1/{file}", defaults={"file"="day10"})
+     * @param string $file
+     * @return JsonResponse
      */
-    public function day10($file)
+    public function day10(string $file): JsonResponse
     {
         $inputs = $this->inputReader->getInput($file.'.txt');
         sort($inputs);
@@ -53,8 +55,10 @@ class Day10Controller extends AbstractController
 
     /**
      * @Route("/2/{file}", defaults={"file"="day10"})
+     * @param string $file
+     * @return JsonResponse
      */
-    public function day10Part2($file)
+    public function day10Part2(string $file): JsonResponse
     {
         $inputs = $this->inputReader->getInput($file.'.txt');
         sort($inputs);

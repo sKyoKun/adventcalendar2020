@@ -20,6 +20,10 @@ class Day12Controller extends AbstractController
     /** @var InputReader */
     private $inputReader;
 
+    /**
+     * @param CalendarServices $calendarServices
+     * @param InputReader $inputReader
+     */
     public function __construct(CalendarServices $calendarServices, InputReader $inputReader)
     {
         $this->calendarServices = $calendarServices;
@@ -28,8 +32,10 @@ class Day12Controller extends AbstractController
 
     /**
      * @Route("/1/{file}", defaults={"file"="day12"})
+     * @param string $file
+     * @return JsonResponse
      */
-    public function day12($file)
+    public function day12(string $file): JsonResponse
     {
         $inputs = $this->inputReader->getInput($file.'.txt');
 
@@ -129,8 +135,10 @@ class Day12Controller extends AbstractController
 
     /**
      * @Route("/2/{file}", defaults={"file"="day12"})
+     * @param string $file
+     * @return JsonResponse
      */
-    public function day12part2($file)
+    public function day12part2(string $file): JsonResponse
     {
         $inputs = $this->inputReader->getInput($file.'.txt');
 

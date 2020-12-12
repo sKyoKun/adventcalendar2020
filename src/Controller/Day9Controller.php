@@ -32,7 +32,7 @@ class Day9Controller extends AbstractController
      * @param $preambleLength
      * @return JsonResponse
      */
-    public function day9(string $file, int $preambleLength)
+    public function day9(string $file, int $preambleLength): JsonResponse
     {
         $inputs = $this->inputReader->getInput($file.'.txt');
         $index = $preambleLength;
@@ -62,7 +62,7 @@ class Day9Controller extends AbstractController
      * @param $numberToFind
      * @return JsonResponse
      */
-    public function day9Part2(string $file, int $numberToFind)
+    public function day9Part2(string $file, int $numberToFind): JsonResponse
     {
         $inputs = $this->inputReader->getInput($file.'.txt');
 
