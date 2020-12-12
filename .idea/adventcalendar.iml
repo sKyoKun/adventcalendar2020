@@ -138,6 +138,10 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpunit/phpunit" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpspec/prophecy" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/myclabs/deep-copy" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/2bj/phanybar" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/hassankhan/config" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/codedungeon/php-cli-colors" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/codedungeon/phpunit-result-printer" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
