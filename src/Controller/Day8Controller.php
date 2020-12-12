@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Services\CalendarServices;
 use App\Services\InputReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -25,11 +27,11 @@ class Day8Controller extends AbstractController
     }
 
     /**
-    + @Route("/")
+     * @Route("/1/{file}", defaults={"file"="day8"})
      */
-    public function day8()
+    public function day8($file)
     {
-        $inputs = $this->inputReader->getInput('day8.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
 
         $accumulator = 0;
         $passedInputs = [];
@@ -51,17 +53,16 @@ class Day8Controller extends AbstractController
                     break;
             }
         }
-        dump($accumulator);
 
-        die();
+        return new JsonResponse($accumulator, Response::HTTP_OK);
     }
 
     /**
-    + @Route("/2")
+     * @Route("/2/{file}", defaults={"file"="day8"})
      */
-    public function day8Part2()
+    public function day8Part2($file)
     {
-        $inputs = $originalInputs = $this->inputReader->getInput('day8.txt');
+        $inputs = $originalInputs =  $this->inputReader->getInput($file.'.txt');
 
         $accumulator = 0;
         $executed = [];
@@ -102,9 +103,8 @@ class Day8Controller extends AbstractController
             $this->processInstruction($instruction, $number, $currentIndex, $accumulator);
 
         }
-        dump($accumulator);
 
-        die();
+        return new JsonResponse($accumulator, Response::HTTP_OK);
     }
 
 
