@@ -5,6 +5,13 @@ namespace App\Services;
 
 class InputReader
 {
+    private $fileDir;
+
+    public function __construct($fileDir)
+    {
+        $this->fileDir = $fileDir;
+    }
+
     /**
      * @param string $file
      * @return array
@@ -12,7 +19,7 @@ class InputReader
     public function getInput(string $file): array
     {
         $inputs = [];
-        $content = fopen('./Files/'.$file, 'r');
+        $content = fopen($this->fileDir . $file, 'r');
 
         while (($line = fgets($content)) !== false) {
             $lineWithoutSpaces = trim($line);

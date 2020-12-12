@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Services\CalendarServices;
 use App\Services\InputReader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -25,11 +27,11 @@ class Day12Controller extends AbstractController
     }
 
     /**
-    + @Route("/")
+     * @Route("/1/{file}", defaults={"file"="day12"})
      */
-    public function day12()
+    public function day12($file)
     {
-        $inputs = $this->inputReader->getInput('day12.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
 
         $direction                     = 'E';
         $countDirection['EASTWEST']    = 0;
@@ -60,10 +62,7 @@ class Day12Controller extends AbstractController
             }
         }
 
-        dump(abs($countDirection['EASTWEST']) + abs($countDirection['NORTHSOUTH']));
-
-        die();
-
+        return new JsonResponse(abs($countDirection['EASTWEST']) + abs($countDirection['NORTHSOUTH']), Response::HTTP_OK);
     }
 
     /**
@@ -129,11 +128,11 @@ class Day12Controller extends AbstractController
 
 
     /**
-    + @Route("/2")
+     * @Route("/2/{file}", defaults={"file"="day12"})
      */
-    public function day12Part2()
+    public function day12part2($file)
     {
-        $inputs = $this->inputReader->getInput('day12.txt');
+        $inputs = $this->inputReader->getInput($file.'.txt');
 
         // configure the starting points
         $waypoint = [
@@ -171,9 +170,7 @@ class Day12Controller extends AbstractController
             }
         }
 
-        dump(abs($ship['EASTWEST']) + abs($ship['NORTHSOUTH']));
-
-        die();
+        return new JsonResponse(abs($ship['EASTWEST']) + abs($ship['NORTHSOUTH']), Response::HTTP_OK);
     }
 
     /**
