@@ -42,12 +42,12 @@ class Day13Controller extends AbstractController
         $timestamp = $inputs[0];
         $buses     = explode(',',$inputs[1]);
 
-        $busesWithoutX = array_diff( $buses, ['x'] );
+        $buses = array_diff( $buses, ['x'] );
 
         $minArrivalTime = null;
         $bestBus = null;
 
-        foreach ($busesWithoutX as $bus) {
+        foreach ($buses as $bus) {
             $arrivalTime = $bus - ($timestamp % $bus);
             if($minArrivalTime === null || ($minArrivalTime !== null && $arrivalTime < $minArrivalTime)) {
                 $minArrivalTime = $arrivalTime;
@@ -68,40 +68,47 @@ class Day13Controller extends AbstractController
         //set_time_limit(0);
         $inputs = $this->inputReader->getInput($file.'.txt');
 
-        $buses = explode(',',$inputs[1]);
-        $additionalTime = array_shift($buses);
+        $arrbuses = explode(',',$inputs[1]);
 
-        $found = 0;
-
-        $busesWithoutX = [];
-        foreach ($buses as $departure => $bus) {
+        $buses = [];
+        foreach ($arrbuses as $departure => $bus) {
             if($bus !== 'x') {
-                // we should add 1 since we shifted the first bus (original 0)
-                $busesWithoutX[$departure+1] = $bus;
+                $buses[] = ['departure'=> $departure, 'id' => $bus];
+            } else {
+                $buses[] = ['departure'=> $departure, 'id' => -1 ];
             }
         }
 
-        $max = (int)max($busesWithoutX);
+        $found = false;
+        $multiplier = 0;
+        $increment = 1;
 
-        $timestamp = $additionalTime ;
-
-        while($found < count($busesWithoutX)) {
-            $found = 0;
-            foreach ($busesWithoutX as $departure => $bus) {
-                $currentTimestamp = $timestamp + $departure;
-
-                $isArrivingTime = ((int)$currentTimestamp % (int)$bus === 0);
-                $isDifferenceTheSameAsStart = ($currentTimestamp - $timestamp === (int)$departure);
-
-                if($isArrivingTime && $isDifferenceTheSameAsStart) {
-                    $found++;
+        while($found === false) {
+            $buses[0]['departure'] = $buses[0]['id'] * $multiplier;
+            $found = true;
+            for ($i = 1; $i < count($buses); $i++) {
+                if ($buses[$i]['id'] == -1) {
+                    $buses[$i]['departure'] = $buses[$i-1]['departure'] + 1;
+                    continue;
+                }
+                $newTime = 0;
+                $j = 1;
+                do {
+                    $newTime = $buses[$i]['id'] * (floor($buses[0]['departure'] / $buses[$i]['id'] ) + $j++);
+                } while (($newTime - $buses[$i-1]['departure']) <= 0);
+                $buses[$i]['departure'] = $newTime;
+                if (isset($buses[$i]['multiplier'])) {
+                    $increment = $multiplier - $buses[$i]['multiplier'];
+                }
+                $buses[$i]['multiplier'] = $multiplier;
+                if ($buses[$i]['departure'] != ($buses[$i-1]['departure'] + 1)) {
+                    $found = false;
+                    break;
                 }
             }
-
-            $timestamp += $additionalTime;
+            $multiplier += $increment;
         }
-        $timestamp -= $additionalTime;
 
-        return new JsonResponse($timestamp, Response::HTTP_OK);
+        return new JsonResponse($buses[0]['departure'], Response::HTTP_OK);
     }
 }
