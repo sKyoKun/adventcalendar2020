@@ -40,28 +40,24 @@ class Day14Controller extends AbstractController
         $inputs = $this->inputReader->getInput($file.'.txt');
 
         $inputMask = array_shift($inputs);
-        $mask0 = [];
-        $mask1 = [];
-        $this->updateMask($inputMask, $mask0, $mask1);
+        $mask = ltrim($inputMask, 'mask = ');
 
         $memory = [];
 
         foreach ($inputs as $input) {
-            if(strstr('mask', $input)) {
-                $this->updateMask($input, $mask0, $mask1);
+            if(strstr($input, 'mask')) {
+                $mask = ltrim($input, 'mask = ');
             } else {
                 $memoryAndValue = explode("=", $input);
                 preg_match("/[0-9]+/", $memoryAndValue[0],$matches);
                 $memoryAddress = (int) $matches[0];
                 $decimalValue = (int)trim($memoryAndValue[1]);
-                $binaryValue = sprintf( "%036d", decbin( $decimalValue));
-                foreach ($mask0 as $posOne) {
-                    $binaryValue[$posOne] = 1;
+                $binaryValue = base_convert($decimalValue, 10, 2);
+                while(strlen($binaryValue) < 36) {
+                    $binaryValue = '0'.$binaryValue;
                 }
-                foreach ($mask1 as $posZero) {
-                    $binaryValue[$posZero] = 0;
-                }
-                $newDecimalValue = bindec($binaryValue);
+                $binaryValue = $this->applyMask($binaryValue, $mask);
+                $newDecimalValue =  base_convert($binaryValue, 2, 10);
                 $memory[$memoryAddress] = $newDecimalValue;
             }
         }
@@ -81,19 +77,22 @@ class Day14Controller extends AbstractController
         return new JsonResponse([], Response::HTTP_OK);
     }
 
-    private function strposAll($needle, $haystack) {
-        $offset = 0;
-        $allPos = array();
-        while (($pos = mb_strpos($haystack, $needle, $offset)) !== FALSE) {
-            $offset   = $pos + 1;
-            $allPos[] = $pos;
+    /**
+     * Changes 1 and 0 of mask in string in parameter
+     * @param $value
+     * @param $mask
+     *
+     * @return mixed
+     */
+    private function applyMask($value, $mask)
+    {
+        for($i=0; $i < strlen($mask); $i++) {
+            if($mask[$i] === 'X') {
+                continue;
+            }
+            $value[$i] = $mask[$i];
         }
-        return $allPos;
-    }
 
-    private function updateMask(&$maskString, &$mask0, &$mask1) {
-        $mask  = ltrim($maskString, 'mask = ');
-        $mask0 = $this->strposAll('1', $mask);
-        $mask1 = $this->strposAll('0', $mask);
+        return $value;
     }
 }
