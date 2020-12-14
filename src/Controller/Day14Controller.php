@@ -74,7 +74,32 @@ class Day14Controller extends AbstractController
     {
         $inputs = $this->inputReader->getInput($file.'.txt');
 
-        return new JsonResponse([], Response::HTTP_OK);
+        $inputMask = array_shift($inputs);
+        $mask = ltrim($inputMask, 'mask = ');
+
+        $memory = [];
+
+        foreach ($inputs as $input) {
+            if(strstr($input, 'mask')) {
+                $mask = ltrim($input, 'mask = ');
+            } else {
+                $memoryAndValue = explode("=", $input);
+                preg_match("/[0-9]+/", $memoryAndValue[0],$matches);
+                $memoryAddress = (int) $matches[0];
+                $decimalValue = (int)trim($memoryAndValue[1]);
+                $binaryMemoryAddress = base_convert($memoryAddress, 10, 2);
+                while(strlen($binaryMemoryAddress) < 36) {
+                    $binaryMemoryAddress = '0'.$binaryMemoryAddress;
+                }
+                $addresses = $this->getAddressesFromMask($binaryMemoryAddress, $mask);
+
+                foreach ($addresses as $address) {
+                    $memory[$address] = $decimalValue;
+                }
+            }
+        }
+
+        return new JsonResponse(array_sum($memory), Response::HTTP_OK);
     }
 
     /**
@@ -94,5 +119,54 @@ class Day14Controller extends AbstractController
         }
 
         return $value;
+    }
+
+    /**
+     * Gets possible addresses from binary address and mask.
+     * @param $binaryAddress
+     * @param $mask
+     *
+     * @return array
+     */
+    private function getAddressesFromMask($binaryAddress, $mask): array
+    {
+        // first : get the binary address combined with the mask
+        // If 0, the address does not change, if 1 or X, print them
+        for($i=0; $i < strlen($mask); $i++) {
+            if($mask[$i] === '0') {
+                continue;
+            }
+            $binaryAddress[$i] = $mask[$i];
+        }
+
+        $possibleCombinations[] = '';
+        for($i = 0; $i < strlen($binaryAddress); $i++)
+        {
+            // if we are on a X, then we should retrieve and remove the current possible value from our array
+            // append to it a 0 or a 1 and then add these possibility to our array
+            if($binaryAddress[$i] == 'X') {
+                $currentCombinationNumber = count($possibleCombinations);
+                for($j = 0; $j < $currentCombinationNumber; $j++) {
+                    $currentValue = $possibleCombinations[$j];
+                    unset($possibleCombinations[$j]);
+                    $possibleCombinations[] = $currentValue.'0';
+                    $possibleCombinations[] = $currentValue.'1';
+                }
+            } else { // Else, just append the value to every possibilities
+                $currentCombinationNumber = count($possibleCombinations);
+                for($v = 0; $v < $currentCombinationNumber; $v++) {
+                    $possibleCombinations[$v] = $possibleCombinations[$v].$binaryAddress[$i];
+                }
+            }
+            // reorganize the keys as unset is not moving the keys.
+            $possibleCombinations = array_values($possibleCombinations);
+        }
+
+        $addresses = [];
+        foreach ($possibleCombinations as $combination) {
+            $addresses[] = base_convert($combination, 2, 10);
+        }
+
+        return $addresses;
     }
 }

@@ -16,12 +16,12 @@ class Day14ControllerTest extends WebTestCase
         $this->assertEquals(165, $content);
     }
 
-    /*public function testDay14Part2()
+    public function testDay14Part2()
     {
         $client = $this->makeClient();
-        $client->request('GET', '/day14/2/day14test');
+        $client->request('GET', '/day14/2/day14testpart2');
         $this->assertStatusCode(200, $client);
         $content = \json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(1068781, $content);
-    }*/
+        $this->assertEquals(208, $content);
+    }
 }
