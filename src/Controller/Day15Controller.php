@@ -78,10 +78,36 @@ class Day15Controller extends AbstractController
      */
     public function day15part2(string $file): JsonResponse
     {
+        ini_set("memory_limit", "-1");
         $inputs = $this->inputReader->getInput($file.'.txt');
 
+        // Let's get our numbers (explode is returning string, so we cast them)
+        $spokenNumbers = explode(',', $inputs[0]);
+        // lastSeen array will take the last index for a number.
+        $lastSeen = [];
 
+        foreach ($spokenNumbers as $key => $number) {
+            $number = (int) $number;
+            $spokenNumbers[$key] = $number;
+            $lastSeen[$number] = $key;
+        }
 
-        return new JsonResponse([], Response::HTTP_OK);
+        array_pop($lastSeen); // We need to process the last spoken number
+        $start = count($spokenNumbers);
+
+        for ($i = $start; $i < 30000000; $i++) {
+            $lastPos = $i-1;
+            $lastNumber = $spokenNumbers[$lastPos];
+
+            // if our number has not been seen, then add a 0
+            if (false === array_key_exists($lastNumber, $lastSeen)) {
+                $spokenNumbers[] = 0;
+            } else { // else our value is the difference between our lastPos and the lastSeen value
+                $spokenNumbers[] = $lastPos - $lastSeen[$lastNumber];
+            }
+            $lastSeen[$lastNumber] = $lastPos;
+        }
+
+        return new JsonResponse(array_pop($spokenNumbers), Response::HTTP_OK);
     }
 }
