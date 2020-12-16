@@ -83,23 +83,15 @@ class Day16Controller extends AbstractController
                 $blankLines[] = $key;
             }
         }
-        $rangeLines = array_slice($inputs, 0, $blankLines[0]);
-        $rangeValues = $this->getRangeValues($rangeLines);
-        $ourTicket = array_slice($inputs, $blankLines[0]+2, 1);
-        $othersTickets = array_slice($inputs, $blankLines[1]+2);
 
-        $invalidValues = [];
+        // go through the ranges (entire with the or)
+        // foreach VALID ticket,
+        // foreach value of the ticket, look if it's in the range (set true or false)
+        // $array[range][posValue] = true/false
+        // look our new array, if every lines have the same posValue to true, then our range is at this position => $range['range'] = pos
+        // look at our ticket, get value for asked ranges and multiply
 
-        foreach ($othersTickets as $key => $oTicket) {
-            $notInRange = $this->invalidValueInTicket($rangeValues, $oTicket);
-            if (!empty($notInRange)) {
-                $invalidValues = array_merge($invalidValues, $notInRange);
-                unset($othersTickets[$key]);
-            }
-
-        }
-
-        return new JsonResponse(array_sum($invalidValues), Response::HTTP_OK);
+        return new JsonResponse([], Response::HTTP_OK);
     }
 
     /**
@@ -140,7 +132,6 @@ class Day16Controller extends AbstractController
 
             if($notInRangeCount === count($ranges)) {
                 $notInRange[] = (int)$value;
-                unset()
             }
         }
 
