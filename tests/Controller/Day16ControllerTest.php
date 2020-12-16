@@ -13,7 +13,7 @@ class Day16ControllerTest extends WebTestCase
         $client->request('GET', '/day16/1/day16test');
         $this->assertStatusCode(200, $client);
         $content = \json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(1836, $content);
+        $this->assertEquals(71, $content);
     }
 
     /*public function testDay15Part2()
