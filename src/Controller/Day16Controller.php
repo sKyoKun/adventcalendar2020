@@ -83,15 +83,83 @@ class Day16Controller extends AbstractController
                 $blankLines[] = $key;
             }
         }
+        $rangeNameAndValues = [];
+        $rangeLines = array_slice($inputs, 0, $blankLines[0]);
+        $rangeValues = $this->getRangeValues($rangeLines);
 
-        // go through the ranges (entire with the or)
-        // foreach VALID ticket,
-        // foreach value of the ticket, look if it's in the range (set true or false)
-        // $array[range][posValue] = true/false
-        // look our new array, if every lines have the same posValue to true, then our range is at this position => $range['range'] = pos
-        // look at our ticket, get value for asked ranges and multiply
+        // We want $rangeNameAndValues['name'] => [acceptedvalues]
+        foreach ($rangeLines as $line) {
+            $rangeKeyValues = explode(': ', $line);
+            $ranges = explode(' or ', $rangeKeyValues[1]);
+            foreach($ranges as $range) {
+                $bounds = explode('-', $range);
+                $rangeNameAndValues[$rangeKeyValues[0]][] = range((int)$bounds[0], (int)$bounds[1]);
+            }
+        }
 
-        return new JsonResponse([], Response::HTTP_OK);
+        $ourTicket     = array_slice($inputs, $blankLines[0]+2, 1);
+        $othersTickets = array_slice($inputs, $blankLines[1]+2);
+
+        // remove invalid tickets
+        foreach ($othersTickets as $key => $otherTicket) {
+            if ( !empty($this->invalidValueInTicket($rangeValues, $otherTicket))) {
+                unset($othersTickets[$key]);
+            }
+        }
+
+        // Get what ranges we find with each position
+        $posFoundInRanges = [];
+        foreach ($othersTickets as $validTicket) {
+            $values = explode(',', $validTicket);
+            foreach ($values as $pos => $value) {
+                foreach ($rangeNameAndValues as $rangeName => $ranges) {
+                    if(in_array($value, $ranges[0]) || in_array($value, $ranges[1])) {
+                        $posFoundInRanges[$pos][] = $rangeName;
+                    }
+                }
+            }
+        }
+
+        // We count occurrences of the same range name for each position and remove the irrelevant ones
+        $countForNames = [];
+        foreach ($posFoundInRanges as $pos => $rangeNames) {
+            $countForNames[$pos] = array_count_values($rangeNames);
+            $max = max($countForNames[$pos]);
+            foreach ($countForNames[$pos] as $range => $count) {
+                if($count !== $max) {
+                    unset($countForNames[$pos][$range]);
+                }
+            }
+        }
+
+        // Then while we dont have the same number between the positions number and the range
+        // We look if a position has only one range, if so, we delete this range from the array for others positions
+        $posForRange = [];
+        while(count($posForRange) !== count($rangeNameAndValues)) {
+            foreach ($countForNames as $pos => $ranges) {
+                if(count($ranges) === 1) {
+                    $uniqueRange = array_key_first($ranges);
+                    $posForRange[$pos] = $uniqueRange;
+                    foreach ($countForNames as $posToDelete => $rangeToDelete) {
+                        if(array_key_exists($uniqueRange, $rangeToDelete)) {
+                            unset($countForNames[$posToDelete][$uniqueRange]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Now that we have a pos = range, lets get our tickets values
+        $ourTicketArray = explode(',', $ourTicket[0]);
+        $departureValue1 = $ourTicketArray[(array_search("departure location", $posForRange))];
+        $departureValue2 = $ourTicketArray[(array_search("departure station", $posForRange))];
+        $departureValue3 = $ourTicketArray[(array_search("departure platform", $posForRange))];
+        $departureValue4 = $ourTicketArray[(array_search("departure track", $posForRange))];
+        $departureValue5 = $ourTicketArray[(array_search("departure date", $posForRange))];
+        $departureValue6 = $ourTicketArray[(array_search("departure time", $posForRange))];
+
+        $total = $departureValue1 * $departureValue2 * $departureValue3 * $departureValue4 * $departureValue5 * $departureValue6;
+        return new JsonResponse($total, Response::HTTP_OK);
     }
 
     /**
