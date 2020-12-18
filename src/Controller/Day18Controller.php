@@ -114,6 +114,76 @@ class Day18Controller extends AbstractController
     {
         $inputs = $this->inputReader->getInput($file.'.txt');
 
-        return new JsonResponse([], Response::HTTP_OK);
+        $linesValues = [];
+        foreach($inputs as $lineNumber => $input) {
+            $linesValues[$lineNumber] = 0;
+            $chars = str_split($input);
+            $chars = array_values(array_diff( $chars, [' '] )); // remove blank values
+            $keysCloseParenthesis = array_keys($chars, ')');
+
+            $count = 0;
+            // While we still have some closed parenthesis
+            while(!empty($keysCloseParenthesis)) {
+                $keysOpenParenthesis  = array_keys($chars, '(');
+                $previousOpenParenthesisKey = $keysCloseParenthesis[0];
+                // first find the corresponding open parenthesis
+                while(!\in_array($previousOpenParenthesisKey, $keysOpenParenthesis)) {
+                    $previousOpenParenthesisKey--;
+                }
+                // let's calculate the inside of the parenthesis
+                $length = $keysCloseParenthesis[0] - $previousOpenParenthesisKey - 1;
+                $subArrayInParenthesis = array_values(array_slice($chars, $previousOpenParenthesisKey+1, $length));
+                $currentValue = $this->calculateWithPlusPrecedence($subArrayInParenthesis, 0, count($subArrayInParenthesis)-1);
+                $chars[$previousOpenParenthesisKey] = $currentValue;
+                // then we remove the parenthesis and it's content
+                unset($chars[$keysCloseParenthesis[0]]);
+                $i = $previousOpenParenthesisKey+1;
+                while($i < $keysCloseParenthesis[0]) {
+                    unset($chars[$i]);
+                    $i++;
+                }
+
+                // we rearrange keys
+                $chars = array_values($chars);
+                $keysCloseParenthesis = array_keys($chars, ')');
+                $count++;
+            }
+
+            // and then we calculate the final value for this line
+            $currentValue = $this->calculateWithPlusPrecedence($chars, 0, count($chars)-1);
+
+            $linesValues[$lineNumber] = $currentValue;
+        }
+
+        return new JsonResponse(array_sum($linesValues), Response::HTTP_OK);
+    }
+
+    /**
+     * @param $array
+     * @param $start
+     * @param $stop
+     * @return int
+     */
+    private function calculateWithPlusPrecedence($array, $start, $stop) {
+        $counter      = $start;
+
+        // we search all the pluses and calculate pos -1 + pos +1
+        $keysPlus = array_keys($array, '+');
+        while(!empty($keysPlus)) {
+            // we set the sum at the pos
+            $replacement = $array[$keysPlus[0]-1] + $array[$keysPlus[0]+1];
+            $array[$keysPlus[0]] = $replacement;
+            // then unset the previous values
+            unset($array[$keysPlus[0]-1]);
+            unset($array[$keysPlus[0]+1]);
+            // let's refresh the array
+            $array = array_values($array);
+            $keysPlus = array_keys($array, '+');
+        }
+
+        // when we calculated all the additions, then we calculate the rest
+        $currentValue = $this->calculate($array, $counter, count($array));
+
+        return $currentValue;
     }
 }
