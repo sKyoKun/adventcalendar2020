@@ -57,9 +57,9 @@ class Day17Controller extends AbstractController
         for($i = 0 ; $i < 6; $i++) {
             $saveGrid = $grid;
             $activeCells = 0;
-            for($z = -($nbCycles -1); $z <= ($nbCycles -1); $z++) {
-                for($x = -($nbCycles -1); $x <= count($grid[0]) + ($nbCycles -1); $x++) {
-                    for($y = -($nbCycles -1); $y <= $yLength + ($nbCycles -1); $y++) {
+            for($x = -($nbCycles -1); $x < count($grid[0]) + ($nbCycles -1); $x++) {
+                for($y = -($nbCycles -1); $y <= $yLength + ($nbCycles); $y++) {
+                    for($z = -($nbCycles -1); $z <= ($nbCycles -1); $z++) {
                         if(!isset($saveGrid[$z][$x][$y])) {
                             $grid[$z][$x][$y] = self::INACTIVE_CELL;
                             continue;
@@ -78,6 +78,7 @@ class Day17Controller extends AbstractController
                     }
                 }
             }
+            dump($grid);die();
         }
 
         dump($activeCells);die();
@@ -111,6 +112,10 @@ class Day17Controller extends AbstractController
         for ($z = $zIndex -1 ; $z <= $zIndex+1; $z++) {
             for ($x = $xIndex -1 ; $x <= $xIndex+1; $x++) {
                 for ($y = $yIndex -1 ; $y <= $yIndex+1; $y++) {
+                    // it's our current cube
+                    if($z === $zIndex && $y === $yIndex && $x === $xIndex) {
+                        continue;
+                    }
                     if(isset($grid[$zIndex][$xIndex][$yIndex]) && self::ACTIVE_CELL === $grid[$zIndex][$xIndex][$yIndex]) {
                         $activeCells++;
                     }
